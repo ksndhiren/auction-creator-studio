@@ -66,3 +66,4 @@ npm run dev
 
 - For local Vite/TanStack Start development, `.env` is enough.
 - For Cloudflare deployment, set the same Supabase variables as Worker secrets/environment variables before running `wrangler deploy`.
+- Git-connected Cloudflare Worker builds are configured for this repository's `main` branch.
