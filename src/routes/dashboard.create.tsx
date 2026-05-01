@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,8 @@ import { Upload, Download, Save, Sparkles } from "lucide-react";
 import { AuctionPreview } from "@/components/AuctionPreview";
 import { graphicTypes, ctaOptions, equipmentCategories, mockupImages } from "@/lib/mock-data";
 import { useAuth } from "@/lib/auth";
+import { renderMockPreviewFile } from "@/lib/mock-preview";
+import type { GraphicSubmission } from "@/lib/generation-schema";
 
 export const Route = createFileRoute("/dashboard/create")({
   head: () => ({ meta: [{ title: "Create Graphic — JMA Marketing Studio" }] }),
@@ -41,7 +43,6 @@ function CreatePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
 
   const set = <K extends keyof typeof data>(k: K, v: (typeof data)[K]) =>
     setData((d) => ({ ...d, [k]: v }));
@@ -54,63 +55,68 @@ function CreatePage() {
     }
   };
 
-  const handleGenerate = async () => {
+  const getSubmissionData = (): GraphicSubmission => ({
+    type: data.type,
+    title: data.title,
+    date: data.date,
+    time: data.time,
+    location: data.location,
+    category: data.category,
+    cta: data.cta,
+    specs: data.specs,
+    website: data.website,
+    phone: data.phone,
+  });
+
+  const createGeneration = async () => {
     if (!isConfigured) {
-      setErrorMessage("Add your Supabase and R2 environment variables before generating.");
-      return;
+      throw new Error("Supabase environment variables are not configured yet.");
     }
 
     if (!session?.access_token) {
-      setErrorMessage("Log in before generating a preview.");
-      return;
+      throw new Error("Log in before generating a preview.");
     }
 
-    if (!previewRef.current) {
-      setErrorMessage("Preview is not ready yet.");
-      return;
+    const body = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (key !== "imageUrl") {
+        body.set(key, value);
+      }
+    });
+    const previewFile = await renderMockPreviewFile(
+      getSubmissionData(),
+      sourceImageFile ?? data.imageUrl,
+    );
+    body.set("previewImage", previewFile);
+    if (sourceImageFile) {
+      body.set("sourceImage", sourceImageFile);
     }
 
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body,
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.error || "Unable to generate preview.");
+    }
+
+    return payload.generation.image as string;
+  };
+
+  const handleGenerate = async () => {
     setIsSubmitting(true);
     setStatusMessage(null);
     setErrorMessage(null);
 
     try {
-      const { toPng } = await import("html-to-image");
-      const pngDataUrl = await toPng(previewRef.current, {
-        cacheBust: true,
-        pixelRatio: 1,
-      });
-      const previewBlob = await fetch(pngDataUrl).then((res) => res.blob());
-      const previewFile = new File([previewBlob], "generated-preview.png", {
-        type: "image/png",
-      });
-
-      const body = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        if (key !== "imageUrl") {
-          body.set(key, value);
-        }
-      });
-      body.set("previewImage", previewFile);
-      if (sourceImageFile) {
-        body.set("sourceImage", sourceImageFile);
-      }
-
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body,
-      });
-
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.error || "Unable to generate preview.");
-      }
-
-      setLastGeneratedUrl(payload.generation.image);
+      const imageUrl = await createGeneration();
+      setLastGeneratedUrl(imageUrl);
       setStatusMessage("Preview generated and saved to My Generations.");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Unable to generate preview.");
@@ -119,25 +125,35 @@ function CreatePage() {
     }
   };
 
-  const handleDownload = async () => {
-    if (lastGeneratedUrl) {
-      window.open(lastGeneratedUrl, "_blank", "noopener,noreferrer");
-      return;
+  const downloadUrl = async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Unable to download the generated PNG.");
     }
-
-    if (!previewRef.current) {
-      return;
-    }
-
-    const { toPng } = await import("html-to-image");
-    const pngDataUrl = await toPng(previewRef.current, {
-      cacheBust: true,
-      pixelRatio: 1,
-    });
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = pngDataUrl;
+    link.href = blobUrl;
     link.download = "auction-preview.png";
     link.click();
+    URL.revokeObjectURL(blobUrl);
+  };
+
+  const handleDownload = async () => {
+    setIsSubmitting(true);
+    setStatusMessage(null);
+    setErrorMessage(null);
+
+    try {
+      const imageUrl = lastGeneratedUrl ?? (await createGeneration());
+      setLastGeneratedUrl(imageUrl);
+      await downloadUrl(imageUrl);
+      setStatusMessage("PNG downloaded successfully.");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to download PNG.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -256,6 +272,7 @@ function CreatePage() {
             <Button
               variant="outline"
               onClick={handleDownload}
+              disabled={isSubmitting}
               className="uppercase tracking-[0.18em] font-bold"
             >
               <Download className="mr-2 h-4 w-4" /> Download PNG
@@ -281,9 +298,7 @@ function CreatePage() {
             </div>
           </div>
           <div className="sticky top-20">
-            <div ref={previewRef}>
-              <AuctionPreview data={data} />
-            </div>
+            <AuctionPreview data={data} />
             <div className="brand-panel mt-4 p-4">
               <div className="text-sm font-semibold uppercase tracking-[0.18em]">
                 Brand reminders
