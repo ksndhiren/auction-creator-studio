@@ -7,7 +7,6 @@ import {
   Users,
   Settings,
   PlusSquare,
-  Gavel,
 } from "lucide-react";
 import {
   Sidebar,
@@ -20,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { BrandMark } from "@/components/BrandMark";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutTemplate },
@@ -39,14 +39,13 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <Link to="/dashboard" className="flex items-center gap-2 px-2 py-3">
-          <div className="flex h-9 w-9 items-center justify-center bg-gold text-gold-foreground">
-            <Gavel className="h-5 w-5" strokeWidth={2.5} />
-          </div>
-          <div className="font-display text-sm uppercase tracking-wider text-sidebar-foreground leading-tight group-data-[collapsible=icon]:hidden">
-            Auction
-            <div className="text-gold">Creative Studio</div>
-          </div>
+        <Link to="/dashboard" className="px-2 py-4 group-data-[collapsible=icon]:px-0">
+          <BrandMark
+            compact
+            inverted
+            showTagline={false}
+            className="group-data-[collapsible=icon]:justify-center"
+          />
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -61,7 +60,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={isActive(item.url)}
-                    className="data-[active=true]:bg-gold data-[active=true]:text-gold-foreground data-[active=true]:font-semibold"
+                    className="h-11 rounded-none border-l-2 border-transparent px-3 data-[active=true]:border-gold data-[active=true]:bg-sidebar-accent data-[active=true]:text-white data-[active=true]:font-semibold"
                   >
                     <Link to={item.url}>
                       <item.icon className="h-4 w-4" />

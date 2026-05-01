@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Montserrat:wght@700;800;900&family=Cormorant+Garamond:wght@600;700&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -5,8 +6,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Oswald", "Impact", sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Gotham Black", "Montserrat", "Arial Black", sans-serif;
+  --font-sans: "Articulat CF", "Instrument Sans", "Inter", system-ui, sans-serif;
+  --font-tagline: "Morsal", "Cormorant Garamond", serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -48,51 +50,38 @@
 }
 
 :root {
-  --radius: 0.5rem;
-
-  /* Industrial palette: white surface, charcoal text, yellow/gold accent */
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.18 0.01 240);
-
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 240);
-
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 240);
-
-  --primary: oklch(0.18 0.01 240);            /* near-black */
-  --primary-foreground: oklch(0.99 0 0);
-
-  --secondary: oklch(0.96 0.005 240);
-  --secondary-foreground: oklch(0.18 0.01 240);
-
-  --muted: oklch(0.96 0.005 240);
-  --muted-foreground: oklch(0.45 0.01 240);
-
-  --accent: oklch(0.85 0.18 92);              /* gold accent */
-  --accent-foreground: oklch(0.18 0.01 240);
-
-  --destructive: oklch(0.6 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
-
-  --border: oklch(0.9 0.005 240);
-  --input: oklch(0.9 0.005 240);
-  --ring: oklch(0.85 0.18 92);
-
-  --charcoal: oklch(0.22 0.01 240);
-  --charcoal-foreground: oklch(0.99 0 0);
-
-  --gold: oklch(0.85 0.18 92);
-  --gold-foreground: oklch(0.18 0.01 240);
-
-  --sidebar: oklch(0.14 0.01 240);
-  --sidebar-foreground: oklch(0.92 0 0);
-  --sidebar-primary: oklch(0.85 0.18 92);
-  --sidebar-primary-foreground: oklch(0.18 0.01 240);
-  --sidebar-accent: oklch(0.22 0.01 240);
-  --sidebar-accent-foreground: oklch(0.99 0 0);
-  --sidebar-border: oklch(0.25 0.01 240);
-  --sidebar-ring: oklch(0.85 0.18 92);
+  --radius: 0.25rem;
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f2;
+  --secondary-foreground: #000000;
+  --muted: #efefec;
+  --muted-foreground: #63666a;
+  --accent: #f2a900;
+  --accent-foreground: #000000;
+  --destructive: #e03c31;
+  --destructive-foreground: #ffffff;
+  --border: #d9d8d2;
+  --input: #d9d8d2;
+  --ring: #f2a900;
+  --charcoal: #000000;
+  --charcoal-foreground: #ffffff;
+  --gold: #f2a900;
+  --gold-foreground: #000000;
+  --sidebar: #000000;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #f2a900;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2a2a2a;
+  --sidebar-ring: #f2a900;
 }
 
 .dark {
@@ -124,6 +113,7 @@
 
   html {
     font-family: var(--font-sans);
+    background-color: var(--color-background);
   }
 
   body {
@@ -133,25 +123,62 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, h4, .font-display {
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
   }
 }
 
 @layer utilities {
-  .text-stencil {
+  .text-stencil,
+  .text-brand-display {
     font-family: var(--font-display);
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.06em;
+    font-weight: 800;
+  }
+
+  .brand-wordmark {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 800;
+  }
+
+  .brand-tagline {
+    font-family: var(--font-tagline);
+    font-style: italic;
+    letter-spacing: 0.01em;
+  }
+
+  .brand-kicker {
+    font-size: 0.75rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+  }
+
+  .brand-panel {
+    border: 1px solid var(--color-border);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.98), rgb(247 246 242 / 0.96));
+  }
+
+  .brand-rule {
+    height: 2px;
+    width: 5rem;
+    background: var(--color-gold);
   }
 
   .bg-grid {
     background-image:
-      linear-gradient(to right, oklch(1 0 0 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(1 0 0 / 0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
+      linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    background-size: 52px 52px;
   }
 
   .bg-diagonal {
@@ -164,7 +191,18 @@
     );
   }
 
+  .bg-chevron {
+    background-image: linear-gradient(
+      120deg,
+      transparent 0 34%,
+      rgb(242 169 0 / 0.9) 34% 39%,
+      transparent 39% 52%,
+      rgb(242 169 0 / 0.32) 52% 57%,
+      transparent 57% 100%
+    );
+  }
+
   .shadow-industrial {
-    box-shadow: 0 20px 50px -15px oklch(0 0 0 / 0.35);
+    box-shadow: 0 24px 60px -26px rgb(0 0 0 / 0.42);
   }
 }

@@ -1,4 +1,5 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { AuthProvider } from "@/lib/auth";
 
 import appCss from "../styles.css?url";
 
@@ -29,19 +30,21 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Auction Creative Studio — Generate Auction Graphics in Minutes" },
-      { name: "description", content: "Upload equipment photos, add auction details, and create branded social posts instantly." },
-      { property: "og:title", content: "Auction Creative Studio" },
-      { property: "og:description", content: "Generate professional auction graphics in minutes." },
+      { title: "JMA Marketing Studio — Auction Graphics Built to Brand" },
+      {
+        name: "description",
+        content:
+          "Create Jeff Martin Auctioneers marketing graphics with approved logo placement, typography, and brand color hierarchy.",
+      },
+      { property: "og:title", content: "JMA Marketing Studio" },
+      {
+        property: "og:description",
+        content: "Generate Jeff Martin Auctioneers campaign graphics with brand-safe layouts.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -63,5 +66,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
 }

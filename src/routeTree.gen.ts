@@ -20,6 +20,7 @@ import { Route as DashboardPartnersRouteImport } from './routes/dashboard.partne
 import { Route as DashboardGenerationsRouteImport } from './routes/dashboard.generations'
 import { Route as DashboardCreateRouteImport } from './routes/dashboard.create'
 import { Route as DashboardBrandRouteImport } from './routes/dashboard.brand'
+import { Route as ApiGenerateRouteImport } from './routes/api.generate'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -76,12 +77,18 @@ const DashboardBrandRoute = DashboardBrandRouteImport.update({
   path: '/brand',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiGenerateRoute = ApiGenerateRouteImport.update({
+  id: '/api/generate',
+  path: '/api/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/api/generate': typeof ApiGenerateRoute
   '/dashboard/brand': typeof DashboardBrandRoute
   '/dashboard/create': typeof DashboardCreateRoute
   '/dashboard/generations': typeof DashboardGenerationsRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/api/generate': typeof ApiGenerateRoute
   '/dashboard/brand': typeof DashboardBrandRoute
   '/dashboard/create': typeof DashboardCreateRoute
   '/dashboard/generations': typeof DashboardGenerationsRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/api/generate': typeof ApiGenerateRoute
   '/dashboard/brand': typeof DashboardBrandRoute
   '/dashboard/create': typeof DashboardCreateRoute
   '/dashboard/generations': typeof DashboardGenerationsRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/signup'
+    | '/api/generate'
     | '/dashboard/brand'
     | '/dashboard/create'
     | '/dashboard/generations'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/api/generate'
     | '/dashboard/brand'
     | '/dashboard/create'
     | '/dashboard/generations'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/signup'
+    | '/api/generate'
     | '/dashboard/brand'
     | '/dashboard/create'
     | '/dashboard/generations'
@@ -162,6 +174,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  ApiGenerateRoute: typeof ApiGenerateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -243,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBrandRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/generate': {
+      id: '/api/generate'
+      path: '/api/generate'
+      fullPath: '/api/generate'
+      preLoaderRoute: typeof ApiGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -275,6 +295,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  ApiGenerateRoute: ApiGenerateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
