@@ -1,3 +1,4 @@
+import { getChannelSpec } from "@/lib/channel-specs";
 import type { GraphicSubmission } from "@/lib/generation-schema";
 
 function escapeXml(value: string) {
@@ -11,6 +12,51 @@ function escapeXml(value: string) {
 
 function truncate(value: string, max: number) {
   return value.length > max ? `${value.slice(0, max - 1)}…` : value;
+}
+
+function wrapTitle(value: string, maxCharsPerLine: number, maxLines: number) {
+  const words = value.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) {
+    return [];
+  }
+
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    const nextLine = currentLine ? `${currentLine} ${word}` : word;
+
+    if (nextLine.length <= maxCharsPerLine) {
+      currentLine = nextLine;
+      continue;
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      lines.push(truncate(word, maxCharsPerLine));
+      currentLine = "";
+    }
+
+    if (lines.length === maxLines) {
+      break;
+    }
+  }
+
+  if (lines.length < maxLines && currentLine) {
+    lines.push(currentLine);
+  }
+
+  if (lines.length > maxLines) {
+    lines.length = maxLines;
+  }
+
+  if (words.join(" ").length > lines.join(" ").length) {
+    lines[lines.length - 1] = truncate(lines[lines.length - 1], maxCharsPerLine - 1);
+  }
+
+  return lines;
 }
 
 async function fileToDataUrl(file: File) {
@@ -32,9 +78,96 @@ async function urlToDataUrl(url: string) {
   return fileToDataUrl(new File([blob], "preview-image", { type: blob.type || "image/jpeg" }));
 }
 
-export function createMockPreviewSvg(data: GraphicSubmission, embeddedImageHref?: string | null) {
+function createPublicAuctionSvg(
+  data: GraphicSubmission,
+  embeddedImageHref: string | null,
+  width: number,
+  height: number,
+) {
+  const shortEdge = Math.min(width, height);
+  const titleLines = wrapTitle(
+    data.title || "Auction Title Here",
+    width > height ? 26 : 22,
+    width > height ? 2 : 3,
+  );
+  const titleMarkup = titleLines
+    .map(
+      (line, index) =>
+        `<tspan x="${width * 0.0407}" dy="${index === 0 ? 0 : shortEdge * 0.0685}">${escapeXml(line)}</tspan>`,
+    )
+    .join("");
+
   return `
-    <svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="auctionFade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#000000" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0.78"/>
+        </linearGradient>
+        <clipPath id="auctionImageClip">
+          <rect x="0" y="${height * 0.0815}" width="${width}" height="${height * 0.7222}"/>
+        </clipPath>
+      </defs>
+
+      <rect width="${width}" height="${height}" fill="#090909"/>
+      <circle cx="${width * 0.1222}" cy="${height * 0.1167}" r="${shortEdge * 0.2222}" fill="#f2a900" fill-opacity="0.16"/>
+      <polygon points="${width * 0.8241},0 ${width},0 ${width},${height} ${width * 0.6704},${height}" fill="#f2a900"/>
+      <polygon points="${width * 0.7537},0 ${width * 0.887},0 ${width * 0.6389},${height} ${width * 0.5056},${height}" fill="#ffffff" fill-opacity="0.14"/>
+
+      ${
+        embeddedImageHref
+          ? `<image href="${embeddedImageHref}" x="0" y="${height * 0.0815}" width="${width}" height="${height * 0.7222}" preserveAspectRatio="xMidYMid slice" clip-path="url(#auctionImageClip)"/>`
+          : `<rect x="0" y="${height * 0.0815}" width="${width}" height="${height * 0.7222}" fill="#151515"/>
+             <text x="${width / 2}" y="${height * 0.435}" text-anchor="middle" fill="#6d6d6d" font-size="${shortEdge * 0.026}" letter-spacing="6">EQUIPMENT IMAGE</text>`
+      }
+      <rect x="0" y="${height * 0.0815}" width="${width}" height="${height * 0.7222}" fill="url(#auctionFade)"/>
+
+      <rect x="0" y="0" width="${width}" height="${height * 0.0815}" fill="#000000" fill-opacity="0.62"/>
+      <rect x="${width * 0.0352}" y="${height * 0.0204}" width="${width * 0.2463}" height="${height * 0.0389}" fill="#f2a900"/>
+      <text x="${width * 0.0519}" y="${height * 0.0463}" fill="#111111" font-size="${shortEdge * 0.0185}" font-weight="800" letter-spacing="4">
+        ${escapeXml(truncate((data.type || "Graphic Type").toUpperCase(), 24))}
+      </text>
+
+      <text x="${width * 0.75}" y="${height * 0.037}" fill="#f2a900" font-size="${shortEdge * 0.039}" font-weight="800">JMA</text>
+      <text x="${width * 0.75}" y="${height * 0.0611}" fill="#ffffff" font-size="${shortEdge * 0.013}" font-weight="700" letter-spacing="3">
+        AUCTION GRAPHICS STUDIO
+      </text>
+
+      <rect x="0" y="${height * 0.6315}" width="${width * 0.687}" height="${height * 0.1574}" fill="#000000" fill-opacity="0.78"/>
+      <rect x="${width * 0.0407}" y="${height * 0.6611}" width="${width * 0.0907}" height="${Math.max(4, shortEdge * 0.0046)}" fill="#f2a900"/>
+      <text x="${width * 0.0407}" y="${height * 0.7278}" fill="#ffffff" font-size="${shortEdge * 0.063}" font-weight="800">
+        ${titleMarkup}
+      </text>
+
+      <rect x="0" y="${height * 0.8037}" width="${width}" height="${height * 0.1963}" fill="#101010"/>
+      <text x="${width * 0.0407}" y="${height * 0.8667}" fill="#f2a900" font-size="${shortEdge * 0.0222}" font-weight="800" letter-spacing="2">
+        ${escapeXml(`${data.date || "Date"} · ${data.time || "Time"}`)}
+      </text>
+      <text x="${width * 0.0407}" y="${height * 0.9}" fill="#ffffff" font-size="${shortEdge * 0.0204}" font-weight="500">
+        ${escapeXml(truncate(data.location || "Location", 36))}
+      </text>
+      <text x="${width * 0.0407}" y="${height * 0.9352}" fill="#9d9d9d" font-size="${shortEdge * 0.0176}" font-weight="500">
+        ${escapeXml(`${data.website || "Website"} · ${data.phone || "Phone"}`)}
+      </text>
+
+      <rect x="${width * 0.7444}" y="${height * 0.8037}" width="${width * 0.2556}" height="${height * 0.1963}" fill="#f2a900"/>
+      <text x="${width * 0.8722}" y="${height * 0.9111}" text-anchor="middle" fill="#111111" font-size="${shortEdge * 0.0222}" font-weight="800" letter-spacing="2">
+        ${escapeXml(truncate((data.cta || "Call To Action").toUpperCase(), 18))}
+      </text>
+    </svg>
+  `;
+}
+
+function createDefaultSvg(
+  data: GraphicSubmission,
+  embeddedImageHref: string | null,
+  width: number,
+  height: number,
+) {
+  const shortEdge = Math.min(width, height);
+
+  return `
+    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stop-color="#131313"/>
@@ -45,61 +178,76 @@ export function createMockPreviewSvg(data: GraphicSubmission, embeddedImageHref?
           <stop offset="100%" stop-color="#f2a900" stop-opacity="0"/>
         </linearGradient>
         <clipPath id="imageClip">
-          <rect x="88" y="220" width="904" height="474" rx="6" ry="6"/>
+          <rect x="${width * 0.0815}" y="${height * 0.2037}" width="${width * 0.837}" height="${height * 0.4389}" rx="6" ry="6"/>
         </clipPath>
       </defs>
 
-      <rect width="1080" height="1080" fill="url(#bg)"/>
-      <rect width="1080" height="1080" fill="url(#goldFade)"/>
-      <polygon points="1080,0 1080,180 790,0" fill="#f2a900" opacity="0.88"/>
-      <polygon points="0,1080 0,920 210,1080" fill="#f2a900" opacity="0.55"/>
+      <rect width="${width}" height="${height}" fill="url(#bg)"/>
+      <rect width="${width}" height="${height}" fill="url(#goldFade)"/>
+      <polygon points="${width},0 ${width},${height * 0.1667} ${width * 0.7315},0" fill="#f2a900" opacity="0.88"/>
+      <polygon points="0,${height} 0,${height * 0.8519} ${width * 0.1944},${height}" fill="#f2a900" opacity="0.55"/>
 
-      <rect x="88" y="60" width="260" height="52" fill="#f2a900"/>
-      <text x="108" y="94" fill="#111111" font-size="22" font-weight="700" letter-spacing="4">
-        ${escapeXml(truncate(data.type, 22).toUpperCase())}
+      <rect x="${width * 0.0815}" y="${height * 0.0556}" width="${width * 0.2407}" height="${height * 0.0481}" fill="#f2a900"/>
+      <text x="${width * 0.1}" y="${height * 0.087}" fill="#111111" font-size="${shortEdge * 0.0204}" font-weight="700" letter-spacing="4">
+        ${escapeXml(truncate((data.type || "Graphic Type").toUpperCase(), 22))}
       </text>
 
-      <g transform="translate(772 58)">
-        <text x="0" y="28" fill="#f2a900" font-size="48" font-weight="800">JMA</text>
-        <text x="0" y="58" fill="#ffffff" font-size="18" font-weight="600" letter-spacing="3">
+      <g transform="translate(${width * 0.7148} ${height * 0.0537})">
+        <text x="0" y="${shortEdge * 0.026}" fill="#f2a900" font-size="${shortEdge * 0.0444}" font-weight="800">JMA</text>
+        <text x="0" y="${shortEdge * 0.0537}" fill="#ffffff" font-size="${shortEdge * 0.0167}" font-weight="600" letter-spacing="3">
           AUCTION GRAPHICS STUDIO
         </text>
       </g>
 
-      <rect x="88" y="220" width="904" height="474" fill="#0f0f0f" stroke="rgba(255,255,255,0.12)"/>
+      <rect x="${width * 0.0815}" y="${height * 0.2037}" width="${width * 0.837}" height="${height * 0.4389}" fill="#0f0f0f" stroke="rgba(255,255,255,0.12)"/>
       ${
         embeddedImageHref
-          ? `<image href="${embeddedImageHref}" x="88" y="220" width="904" height="474" preserveAspectRatio="xMidYMid slice" clip-path="url(#imageClip)"/>`
-          : `<rect x="88" y="220" width="904" height="474" fill="#202020"/>
-             <text x="540" y="450" text-anchor="middle" fill="#6d6d6d" font-size="28" letter-spacing="6">EQUIPMENT IMAGE</text>`
+          ? `<image href="${embeddedImageHref}" x="${width * 0.0815}" y="${height * 0.2037}" width="${width * 0.837}" height="${height * 0.4389}" preserveAspectRatio="xMidYMid slice" clip-path="url(#imageClip)"/>`
+          : `<rect x="${width * 0.0815}" y="${height * 0.2037}" width="${width * 0.837}" height="${height * 0.4389}" fill="#202020"/>
+             <text x="${width / 2}" y="${height * 0.4167}" text-anchor="middle" fill="#6d6d6d" font-size="${shortEdge * 0.026}" letter-spacing="6">EQUIPMENT IMAGE</text>`
       }
 
-      <rect x="88" y="742" width="180" height="4" fill="#f2a900"/>
-      <text x="88" y="820" fill="#ffffff" font-size="72" font-weight="800">
-        ${escapeXml(truncate(data.title, 30))}
+      <rect x="${width * 0.0815}" y="${height * 0.687}" width="${width * 0.1667}" height="${Math.max(4, shortEdge * 0.0037)}" fill="#f2a900"/>
+      <text x="${width * 0.0815}" y="${height * 0.7593}" fill="#ffffff" font-size="${shortEdge * 0.0667}" font-weight="800">
+        ${escapeXml(truncate(data.title || "Auction Title Here", width > height ? 28 : 30))}
       </text>
 
-      <text x="88" y="920" fill="#f2a900" font-size="26" font-weight="700" letter-spacing="2">
-        ${escapeXml(`${data.date} · ${data.time}`)}
+      <text x="${width * 0.0815}" y="${height * 0.8519}" fill="#f2a900" font-size="${shortEdge * 0.0241}" font-weight="700" letter-spacing="2">
+        ${escapeXml(`${data.date || "Date"} · ${data.time || "Time"}`)}
       </text>
-      <text x="88" y="958" fill="#ffffff" font-size="24" font-weight="500">
-        ${escapeXml(truncate(data.location, 38))}
+      <text x="${width * 0.0815}" y="${height * 0.887}" fill="#ffffff" font-size="${shortEdge * 0.0222}" font-weight="500">
+        ${escapeXml(truncate(data.location || "Location", 38))}
       </text>
-      <text x="88" y="994" fill="#9d9d9d" font-size="20" font-weight="500">
-        ${escapeXml(`${data.website} · ${data.phone}`)}
+      <text x="${width * 0.0815}" y="${height * 0.9204}" fill="#9d9d9d" font-size="${shortEdge * 0.0185}" font-weight="500">
+        ${escapeXml(`${data.website || "Website"} · ${data.phone || "Phone"}`)}
       </text>
 
-      <rect x="760" y="900" width="232" height="84" fill="#f2a900" stroke="#f2a900"/>
-      <text x="876" y="950" text-anchor="middle" fill="#111111" font-size="24" font-weight="800" letter-spacing="2">
-        ${escapeXml(truncate(data.cta, 18).toUpperCase())}
+      <rect x="${width * 0.7037}" y="${height * 0.8333}" width="${width * 0.2148}" height="${height * 0.0778}" fill="#f2a900" stroke="#f2a900"/>
+      <text x="${width * 0.8111}" y="${height * 0.8796}" text-anchor="middle" fill="#111111" font-size="${shortEdge * 0.0222}" font-weight="800" letter-spacing="2">
+        ${escapeXml(truncate((data.cta || "Call To Action").toUpperCase(), 18))}
       </text>
     </svg>
   `;
 }
 
+export function createMockPreviewSvg(
+  data: GraphicSubmission,
+  embeddedImageHref?: string | null,
+  channel = "Instagram Post",
+) {
+  const spec = getChannelSpec(channel);
+
+  if (data.type === "Public Auction") {
+    return createPublicAuctionSvg(data, embeddedImageHref ?? null, spec.width, spec.height);
+  }
+
+  return createDefaultSvg(data, embeddedImageHref ?? null, spec.width, spec.height);
+}
+
 export async function renderMockPreviewFile(
   data: GraphicSubmission,
   imageSource?: File | string | null,
+  channel = "Instagram Post",
 ) {
   let embeddedImageHref: string | null = null;
 
@@ -109,7 +257,8 @@ export async function renderMockPreviewFile(
     embeddedImageHref = await urlToDataUrl(imageSource);
   }
 
-  const svg = createMockPreviewSvg(data, embeddedImageHref);
+  const spec = getChannelSpec(channel);
+  const svg = createMockPreviewSvg(data, embeddedImageHref, channel);
   const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
   const svgUrl = URL.createObjectURL(svgBlob);
 
@@ -122,13 +271,13 @@ export async function renderMockPreviewFile(
     });
 
     const canvas = document.createElement("canvas");
-    canvas.width = 1080;
-    canvas.height = 1080;
+    canvas.width = spec.width;
+    canvas.height = spec.height;
     const context = canvas.getContext("2d");
     if (!context) {
       throw new Error("Unable to create preview canvas.");
     }
-    context.drawImage(image, 0, 0, 1080, 1080);
+    context.drawImage(image, 0, 0, spec.width, spec.height);
 
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob((value) => {
@@ -140,7 +289,8 @@ export async function renderMockPreviewFile(
       }, "image/png");
     });
 
-    return new File([blob], "generated-preview.png", { type: "image/png" });
+    const slug = channel.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    return new File([blob], `generated-${slug}.png`, { type: "image/png" });
   } finally {
     URL.revokeObjectURL(svgUrl);
   }

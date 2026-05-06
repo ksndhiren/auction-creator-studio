@@ -25,7 +25,7 @@ function Landing() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-black/92 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-2.5">
           <Link to="/">
-            <BrandMark inverted className="origin-left" />
+            <BrandMark inverted showTagline={false} className="origin-left" />
           </Link>
           <nav className="hidden items-center gap-6 text-xs font-medium uppercase tracking-[0.18em] md:flex">
             <a href="#workflow" className="text-white/72 transition hover:text-white">

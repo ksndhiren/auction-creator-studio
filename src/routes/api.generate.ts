@@ -47,10 +47,26 @@ export const Route = createFileRoute("/api/generate")({
         }
 
         const previewImage = formData.get("previewImage");
+        const previewImages = formData.getAll("previewImages");
+        const previewChannels = formData.getAll("previewChannels");
         const sourceImage = formData.get("sourceImage");
 
         if (!(previewImage instanceof File) || previewImage.size === 0) {
           return Response.json({ error: "Missing generated preview image." }, { status: 400 });
+        }
+
+        const channelFiles = previewImages
+          .map((value, index) => ({
+            file: value,
+            channel: String(previewChannels[index] || ""),
+          }))
+          .filter(
+            (item): item is { file: File; channel: string } =>
+              item.file instanceof File && item.file.size > 0 && item.channel.length > 0,
+          );
+
+        if (channelFiles.length === 0) {
+          return Response.json({ error: "Missing channel export files." }, { status: 400 });
         }
 
         const account = await ensureProfileAndOrganisation(admin, user);
@@ -62,13 +78,18 @@ export const Route = createFileRoute("/api/generate")({
                 kind: "source",
               })
             : null;
-        const previewUpload = await uploadFileToSupabaseStorage(admin, previewImage, {
-          userId: user.id,
-          kind: "preview",
-        });
-
         const sourceUploadId = sourceUpload ? crypto.randomUUID() : null;
-        const previewUploadId = crypto.randomUUID();
+        const previewUploads = await Promise.all(
+          channelFiles.map(async ({ file, channel }) => ({
+            channel,
+            uploadId: crypto.randomUUID(),
+            upload: await uploadFileToSupabaseStorage(admin, file, {
+              userId: user.id,
+              kind: "preview",
+            }),
+          })),
+        );
+        const primaryPreview = previewUploads[0];
 
         if (sourceUpload) {
           const { error } = await admin.from("uploads").insert({
@@ -90,18 +111,20 @@ export const Route = createFileRoute("/api/generate")({
         }
 
         {
-          const { error } = await admin.from("uploads").insert({
-            id: previewUploadId,
-            user_id: user.id,
-            organisation_id: account.organisationId,
-            bucket: previewUpload.bucket,
-            object_key: previewUpload.objectKey,
-            file_url: previewUpload.fileUrl,
-            file_name: previewUpload.fileName,
-            content_type: previewUpload.contentType,
-            size_bytes: previewUpload.sizeBytes,
-            kind: "preview",
-          });
+          const { error } = await admin.from("uploads").insert(
+            previewUploads.map(({ uploadId, upload }) => ({
+              id: uploadId,
+              user_id: user.id,
+              organisation_id: account.organisationId,
+              bucket: upload.bucket,
+              object_key: upload.objectKey,
+              file_url: upload.fileUrl,
+              file_name: upload.fileName,
+              content_type: upload.contentType,
+              size_bytes: upload.sizeBytes,
+              kind: "preview",
+            })),
+          );
 
           if (error) {
             return Response.json({ error: error.message }, { status: 500 });
@@ -112,7 +135,11 @@ export const Route = createFileRoute("/api/generate")({
         const payload = {
           ...parsed.data,
           sourceImageUrl: sourceUpload?.fileUrl ?? null,
-          previewImageUrl: previewUpload.fileUrl,
+          previewImageUrl: primaryPreview.upload.fileUrl,
+          channelExports: previewUploads.map(({ channel, upload }) => ({
+            channel,
+            image: upload.fileUrl,
+          })),
         };
 
         const { error: generationError } = await admin.from("generations").insert({
@@ -124,9 +151,9 @@ export const Route = createFileRoute("/api/generate")({
           status: "completed",
           input_data: payload,
           source_upload_id: sourceUploadId,
-          preview_upload_id: previewUploadId,
+          preview_upload_id: primaryPreview.uploadId,
           source_image_url: sourceUpload?.fileUrl ?? null,
-          preview_image_url: previewUpload.fileUrl,
+          preview_image_url: primaryPreview.upload.fileUrl,
         });
 
         if (generationError) {
@@ -139,7 +166,8 @@ export const Route = createFileRoute("/api/generate")({
             title: parsed.data.title,
             type: parsed.data.type,
             status: "completed",
-            image: previewUpload.fileUrl,
+            image: primaryPreview.upload.fileUrl,
+            exports: payload.channelExports,
             date: new Date().toISOString(),
           },
         });

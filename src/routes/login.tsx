@@ -134,9 +134,9 @@ export function AuthShell({ mode }: { mode: "login" | "signup" }) {
               />
             </div>
             {!isConfigured && (
-              <p className="text-sm text-destructive">
-                Add the Supabase environment variables before using authentication.
-              </p>
+              <div className="text-sm text-destructive">
+                <p>Add the Supabase environment variables before using authentication.</p>
+              </div>
             )}
             {error && <p className="text-sm text-destructive">{error}</p>}
             {message && <p className="text-sm text-emerald-700">{message}</p>}

@@ -1,13 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  Sparkles,
-  LayoutTemplate,
-  Images,
-  Palette,
-  Users,
-  Settings,
-  PlusSquare,
-} from "lucide-react";
+import { LayoutTemplate, Images, Settings, PlusSquare, CalendarDays } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -23,11 +15,9 @@ import { BrandMark } from "@/components/BrandMark";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutTemplate },
-  { title: "Create Graphic", url: "/dashboard/create", icon: PlusSquare },
-  { title: "Templates", url: "/dashboard/templates", icon: Sparkles },
-  { title: "My Generations", url: "/dashboard/generations", icon: Images },
-  { title: "Brand Kit", url: "/dashboard/brand", icon: Palette },
-  { title: "Partners", url: "/dashboard/partners", icon: Users },
+  { title: "Create", url: "/dashboard/create", icon: PlusSquare },
+  { title: "My Graphics", url: "/dashboard/generations", icon: Images },
+  { title: "Calendar", url: "/dashboard/calendar", icon: CalendarDays },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 

@@ -205,4 +205,108 @@
   .shadow-industrial {
     box-shadow: 0 24px 60px -26px rgb(0 0 0 / 0.42);
   }
+
+  .questionnaire-step {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 14rem;
+    align-items: center;
+    gap: 0.875rem;
+    border: 1px solid var(--color-border);
+    background: rgb(255 255 255 / 0.8);
+    padding: 0.875rem 1rem;
+    text-align: left;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .questionnaire-step:hover {
+    border-color: var(--color-gold);
+    transform: translateY(-1px);
+  }
+
+  .questionnaire-step-active {
+    border-color: var(--color-gold);
+    background: linear-gradient(180deg, rgb(255 250 237), rgb(255 255 255));
+    box-shadow: 0 20px 36px -30px rgb(0 0 0 / 0.45);
+  }
+
+  .questionnaire-step-complete {
+    background: linear-gradient(180deg, rgb(248 248 245), rgb(255 255 255));
+  }
+
+  .questionnaire-step-index {
+    display: inline-flex;
+    height: 2rem;
+    width: 2rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .questionnaire-step-active .questionnaire-step-index,
+  .questionnaire-step-complete .questionnaire-step-index {
+    border-color: var(--color-gold);
+    background: var(--color-gold);
+    color: var(--color-gold-foreground);
+  }
+
+  .questionnaire-choice {
+    display: flex;
+    min-height: 3.5rem;
+    cursor: pointer;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    background: rgb(255 255 255 / 0.8);
+    padding: 0.9rem 1rem;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .questionnaire-choice:hover,
+  .questionnaire-choice-active {
+    border-color: var(--color-gold);
+    background: rgb(242 169 0 / 0.08);
+  }
+
+  .questionnaire-upload {
+    display: flex;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 2px dashed var(--color-border);
+    background: rgb(244 244 242 / 0.72);
+    padding: 2rem;
+    text-align: center;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .questionnaire-upload:hover {
+    border-color: var(--color-gold);
+    background: rgb(242 169 0 / 0.06);
+  }
+
+  .questionnaire-note {
+    display: flex;
+    gap: 0.75rem;
+    border-left: 2px solid var(--color-gold);
+    background: rgb(244 244 242 / 0.72);
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
+    color: var(--color-muted-foreground);
+  }
 }

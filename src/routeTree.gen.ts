@@ -19,6 +19,7 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settin
 import { Route as DashboardPartnersRouteImport } from './routes/dashboard.partners'
 import { Route as DashboardGenerationsRouteImport } from './routes/dashboard.generations'
 import { Route as DashboardCreateRouteImport } from './routes/dashboard.create'
+import { Route as DashboardCalendarRouteImport } from './routes/dashboard.calendar'
 import { Route as DashboardBrandRouteImport } from './routes/dashboard.brand'
 import { Route as ApiGenerateRouteImport } from './routes/api.generate'
 
@@ -72,6 +73,11 @@ const DashboardCreateRoute = DashboardCreateRouteImport.update({
   path: '/create',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardCalendarRoute = DashboardCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardBrandRoute = DashboardBrandRouteImport.update({
   id: '/brand',
   path: '/brand',
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
   '/dashboard/brand': typeof DashboardBrandRoute
+  '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/create': typeof DashboardCreateRoute
   '/dashboard/generations': typeof DashboardGenerationsRoute
   '/dashboard/partners': typeof DashboardPartnersRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
   '/dashboard/brand': typeof DashboardBrandRoute
+  '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/create': typeof DashboardCreateRoute
   '/dashboard/generations': typeof DashboardGenerationsRoute
   '/dashboard/partners': typeof DashboardPartnersRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
   '/dashboard/brand': typeof DashboardBrandRoute
+  '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/create': typeof DashboardCreateRoute
   '/dashboard/generations': typeof DashboardGenerationsRoute
   '/dashboard/partners': typeof DashboardPartnersRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/api/generate'
     | '/dashboard/brand'
+    | '/dashboard/calendar'
     | '/dashboard/create'
     | '/dashboard/generations'
     | '/dashboard/partners'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/api/generate'
     | '/dashboard/brand'
+    | '/dashboard/calendar'
     | '/dashboard/create'
     | '/dashboard/generations'
     | '/dashboard/partners'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/api/generate'
     | '/dashboard/brand'
+    | '/dashboard/calendar'
     | '/dashboard/create'
     | '/dashboard/generations'
     | '/dashboard/partners'
@@ -249,6 +261,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCreateRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/calendar': {
+      id: '/dashboard/calendar'
+      path: '/calendar'
+      fullPath: '/dashboard/calendar'
+      preLoaderRoute: typeof DashboardCalendarRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/brand': {
       id: '/dashboard/brand'
       path: '/brand'
@@ -268,6 +287,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardBrandRoute: typeof DashboardBrandRoute
+  DashboardCalendarRoute: typeof DashboardCalendarRoute
   DashboardCreateRoute: typeof DashboardCreateRoute
   DashboardGenerationsRoute: typeof DashboardGenerationsRoute
   DashboardPartnersRoute: typeof DashboardPartnersRoute
@@ -278,6 +298,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardBrandRoute: DashboardBrandRoute,
+  DashboardCalendarRoute: DashboardCalendarRoute,
   DashboardCreateRoute: DashboardCreateRoute,
   DashboardGenerationsRoute: DashboardGenerationsRoute,
   DashboardPartnersRoute: DashboardPartnersRoute,
