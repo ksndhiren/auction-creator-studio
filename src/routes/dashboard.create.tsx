@@ -109,9 +109,11 @@ function CreatePage() {
   const [isReviewStage, setIsReviewStage] = useState(false);
   const [data, setData] = useState({
     type: "",
+    year: "",
     title: "",
     date: "",
     time: "",
+    timezone: "CT",
     location: "",
     category: "",
     cta: "",
@@ -192,9 +194,11 @@ function CreatePage() {
 
         setData({
           type: String(input.type || ""),
+          year: String(input.year || ""),
           title: String(input.title || ""),
           date: String(input.date || ""),
           time: String(input.time || ""),
+          timezone: String(input.timezone || "CT"),
           location: String(input.location || ""),
           category: String(input.category || ""),
           cta: String(input.cta || ""),
@@ -237,9 +241,11 @@ function CreatePage() {
 
   const getSubmissionData = (): GraphicSubmission => ({
     type: data.type,
+    year: data.year,
     title: data.title,
     date: data.date,
     time: data.time,
+    timezone: data.timezone,
     location: data.location,
     category: data.category,
     cta: data.cta,
@@ -264,10 +270,17 @@ function CreatePage() {
       { label: "Channels selected", done: data.platforms.length > 0 },
       {
         label: "Core auction details filled",
-        done: Boolean(data.title && data.date && data.location),
+        done:
+          data.type === "Equipment Spotlight"
+            ? Boolean(data.year && data.title && data.category && data.date && data.time)
+            : Boolean(data.title && data.date && data.location),
       },
       { label: "Hero image loaded", done: Boolean(sourceImageFile || data.imageUrl) },
-      { label: "CTA confirmed", done: Boolean(data.cta) },
+      {
+        label:
+          data.type === "Equipment Spotlight" ? "Auction start line confirmed" : "CTA confirmed",
+        done: data.type === "Equipment Spotlight" ? Boolean(data.timezone) : Boolean(data.cta),
+      },
     ],
     [data, sourceImageFile],
   );
@@ -576,7 +589,13 @@ function CreatePage() {
               <div className="mt-6">
                 {stepIndex === 0 && (
                   <div className="space-y-6">
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div
+                      className={
+                        data.type === "Equipment Spotlight"
+                          ? "grid gap-4 md:grid-cols-1"
+                          : "grid gap-4 md:grid-cols-2"
+                      }
+                    >
                       <Field label="Graphic type">
                         <Select value={data.type} onValueChange={(value) => set("type", value)}>
                           <SelectTrigger>
@@ -591,23 +610,25 @@ function CreatePage() {
                           </SelectContent>
                         </Select>
                       </Field>
-                      <Field label="Equipment category">
-                        <Select
-                          value={data.category}
-                          onValueChange={(value) => set("category", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {equipmentCategories.map((category) => (
-                              <SelectItem key={category} value={category}>
-                                {category}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </Field>
+                      {data.type === "Equipment Spotlight" ? null : (
+                        <Field label="Equipment category">
+                          <Select
+                            value={data.category}
+                            onValueChange={(value) => set("category", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {equipmentCategories.map((category) => (
+                                <SelectItem key={category} value={category}>
+                                  {category}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                      )}
                     </div>
 
                     <Field label="Channels">
@@ -639,52 +660,132 @@ function CreatePage() {
 
                 {stepIndex === 1 && (
                   <div className="space-y-6">
-                    <Field label="Auction title">
-                      <Input
-                        value={data.title}
-                        onChange={(e) => set("title", e.target.value)}
-                        placeholder="Auction title"
-                      />
-                    </Field>
+                    {data.type === "Equipment Spotlight" ? (
+                      <>
+                        <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
+                          <Field label="Year">
+                            <Input
+                              value={data.year}
+                              onChange={(e) => set("year", e.target.value)}
+                              placeholder="2000"
+                            />
+                          </Field>
+                          <Field label="Make / model">
+                            <Input
+                              value={data.title}
+                              onChange={(e) => set("title", e.target.value)}
+                              placeholder="Liebherr LTM 1300"
+                            />
+                          </Field>
+                        </div>
 
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <Field label="Date">
-                        <Input
-                          type="date"
-                          value={data.date}
-                          onChange={(e) => set("date", e.target.value)}
-                        />
-                      </Field>
-                      <Field label="Time">
-                        <Select value={data.time} onValueChange={(value) => set("time", value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose a time" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {timeOptions.map((time) => (
-                              <SelectItem key={time} value={time}>
-                                {time}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </Field>
-                      <Field label="Location">
-                        <Input
-                          value={data.location}
-                          onChange={(e) => set("location", e.target.value)}
-                          placeholder="City, State"
-                        />
-                      </Field>
-                    </div>
+                        <Field label="Equipment class">
+                          <Input
+                            value={data.category}
+                            onChange={(e) => set("category", e.target.value)}
+                            placeholder="All Terrain Crane"
+                          />
+                        </Field>
 
-                    <div className="questionnaire-note">
-                      <CalendarClock className="h-4 w-4 text-gold" />
-                      <p>
-                        Keep this short and field-ready. The title, date, and location are the
-                        pieces that should read fast on social.
-                      </p>
-                    </div>
+                        <div className="grid gap-4 sm:grid-cols-3">
+                          <Field label="Auction start date">
+                            <Input
+                              type="date"
+                              value={data.date}
+                              onChange={(e) => set("date", e.target.value)}
+                            />
+                          </Field>
+                          <Field label="Auction start time">
+                            <Select value={data.time} onValueChange={(value) => set("time", value)}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose a time" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {timeOptions.map((time) => (
+                                  <SelectItem key={time} value={time}>
+                                    {time}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </Field>
+                          <Field label="Timezone">
+                            <Select
+                              value={data.timezone}
+                              onValueChange={(value) => set("timezone", value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Timezone" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {["ET", "CT", "MT", "PT"].map((timezone) => (
+                                  <SelectItem key={timezone} value={timezone}>
+                                    {timezone}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </Field>
+                        </div>
+
+                        <div className="questionnaire-note">
+                          <CalendarClock className="h-4 w-4 text-gold" />
+                          <p>
+                            This template uses a strict three-line top lockup: year, make/model, and
+                            equipment class.
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Field label="Auction title">
+                          <Input
+                            value={data.title}
+                            onChange={(e) => set("title", e.target.value)}
+                            placeholder="Auction title"
+                          />
+                        </Field>
+
+                        <div className="grid gap-4 sm:grid-cols-3">
+                          <Field label="Date">
+                            <Input
+                              type="date"
+                              value={data.date}
+                              onChange={(e) => set("date", e.target.value)}
+                            />
+                          </Field>
+                          <Field label="Time">
+                            <Select value={data.time} onValueChange={(value) => set("time", value)}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose a time" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {timeOptions.map((time) => (
+                                  <SelectItem key={time} value={time}>
+                                    {time}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </Field>
+                          <Field label="Location">
+                            <Input
+                              value={data.location}
+                              onChange={(e) => set("location", e.target.value)}
+                              placeholder="City, State"
+                            />
+                          </Field>
+                        </div>
+
+                        <div className="questionnaire-note">
+                          <CalendarClock className="h-4 w-4 text-gold" />
+                          <p>
+                            Keep this short and field-ready. The title, date, and location are the
+                            pieces that should read fast on social.
+                          </p>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -714,41 +815,45 @@ function CreatePage() {
                       )}
                     </div>
 
-                    <Field label="Call to action">
-                      <Select value={data.cta} onValueChange={(value) => set("cta", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a call to action" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ctaOptions.map((cta) => (
-                            <SelectItem key={cta} value={cta}>
-                              {cta}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </Field>
+                    {data.type === "Equipment Spotlight" ? null : (
+                      <Field label="Call to action">
+                        <Select value={data.cta} onValueChange={(value) => set("cta", value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose a call to action" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ctaOptions.map((cta) => (
+                              <SelectItem key={cta} value={cta}>
+                                {cta}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    )}
                   </div>
                 )}
 
                 {stepIndex === 3 && (
                   <div className="space-y-6">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <Field label="Website">
-                        <Input
-                          value={data.website}
-                          onChange={(e) => set("website", e.target.value)}
-                          placeholder="Company website"
-                        />
-                      </Field>
-                      <Field label="Phone">
-                        <Input
-                          value={data.phone}
-                          onChange={(e) => set("phone", e.target.value)}
-                          placeholder="Phone number"
-                        />
-                      </Field>
-                    </div>
+                    {data.type === "Equipment Spotlight" ? null : (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <Field label="Website">
+                          <Input
+                            value={data.website}
+                            onChange={(e) => set("website", e.target.value)}
+                            placeholder="Company website"
+                          />
+                        </Field>
+                        <Field label="Phone">
+                          <Input
+                            value={data.phone}
+                            onChange={(e) => set("phone", e.target.value)}
+                            placeholder="Phone number"
+                          />
+                        </Field>
+                      </div>
+                    )}
 
                     <div className="brand-panel p-4">
                       <div className="brand-kicker text-muted-foreground">Production checklist</div>

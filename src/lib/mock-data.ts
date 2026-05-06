@@ -6,6 +6,7 @@ export const mockupImages = [mock1, mock2, mock3];
 
 export type GraphicType =
   | "Public Auction"
+  | "Equipment Spotlight"
   | "Featured Lot"
   | "Bid Now"
   | "Consign Today"
@@ -14,6 +15,7 @@ export type GraphicType =
 
 export const graphicTypes: GraphicType[] = [
   "Public Auction",
+  "Equipment Spotlight",
   "Featured Lot",
   "Bid Now",
   "Consign Today",
@@ -33,6 +35,13 @@ export const equipmentCategories = [
 ];
 
 export const templates = [
+  {
+    id: "t0",
+    name: "Equipment Spotlight",
+    type: "Equipment Spotlight",
+    image: mock2,
+    desc: "Reference-style equipment feature with bold top lockup and auction start footer.",
+  },
   {
     id: "t1",
     name: "Public Auction",

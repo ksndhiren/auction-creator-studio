@@ -14,6 +14,38 @@ function truncate(value: string, max: number) {
   return value.length > max ? `${value.slice(0, max - 1)}…` : value;
 }
 
+function formatAuctionStarts(date: string, time: string, timezone?: string) {
+  if (!date && !time) {
+    return "WEDNESDAY, MAY 13TH @ 10:00 AM CT";
+  }
+
+  const [yearValue, monthValue, dayValue] = date.split("-").map(Number);
+  const parsedDate =
+    yearValue && monthValue && dayValue
+      ? new Date(Date.UTC(yearValue, monthValue - 1, dayValue))
+      : null;
+
+  const weekday = parsedDate
+    ? parsedDate.toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" }).toUpperCase()
+    : "DATE";
+  const month = parsedDate
+    ? parsedDate.toLocaleDateString("en-US", { month: "long", timeZone: "UTC" }).toUpperCase()
+    : "MONTH";
+  const day = parsedDate ? parsedDate.getUTCDate() : 0;
+  const suffix =
+    day % 10 === 1 && day % 100 !== 11
+      ? "ST"
+      : day % 10 === 2 && day % 100 !== 12
+        ? "ND"
+        : day % 10 === 3 && day % 100 !== 13
+          ? "RD"
+          : "TH";
+
+  return `${weekday}, ${month} ${day || "--"}${day ? suffix : ""} @ ${(
+    time || "TIME"
+  ).toUpperCase()} ${timezone || "CT"}`.trim();
+}
+
 function wrapTitle(value: string, maxCharsPerLine: number, maxLines: number) {
   const words = value.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) {
@@ -158,6 +190,66 @@ function createPublicAuctionSvg(
   `;
 }
 
+function createEquipmentSpotlightSvg(
+  data: GraphicSubmission,
+  embeddedImageHref: string | null,
+  width: number,
+  height: number,
+) {
+  const startsLine = formatAuctionStarts(data.date, data.time, data.timezone);
+
+  return `
+    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="spotlightImageClip">
+          <rect x="0" y="${height * 0.2805}" width="${width}" height="${height * 0.564}"/>
+        </clipPath>
+      </defs>
+
+      <rect width="${width}" height="${height}" fill="#0a0a0a"/>
+      <rect x="0" y="0" width="${width}" height="${height * 0.2755}" fill="#f2b000"/>
+      <rect x="${width * 0.599}" y="0" width="${width * 0.401}" height="${height * 0.2755}" fill="#000000"/>
+      <polygon points="${width * 0.5885},${height * 0.1377} ${width * 0.702},0 ${width * 0.702},${height * 0.2755}" fill="#f2b000"/>
+      <rect x="0" y="${height * 0.2755}" width="${width}" height="${Math.max(3, height * 0.0052)}" fill="#050505"/>
+
+      <text x="${width * 0.0465}" y="${height * 0.1065}" fill="#000000" font-size="${width * 0.117}" font-weight="900" letter-spacing="-3.9">
+        ${escapeXml(data.year || "2000")}
+      </text>
+      <text x="${width * 0.0465}" y="${height * 0.1845}" fill="#000000" font-size="${width * 0.0522}" font-weight="900" letter-spacing="-2">
+        ${escapeXml(truncate((data.title || "LIEBHERR LTM 1300").toUpperCase(), 26))}
+      </text>
+      <text x="${width * 0.0465}" y="${height * 0.2365}" fill="#ffffff" font-size="${width * 0.038}" font-weight="800">
+        ${escapeXml(truncate((data.category || "ALL TERRAIN CRANE").toUpperCase(), 24))}
+      </text>
+
+      <text x="${width * 0.766}" y="${height * 0.0995}" fill="#f2b000" font-size="${width * 0.096}" font-weight="900">JMA</text>
+      <text x="${width * 0.731}" y="${height * 0.1835}" fill="#ffffff" font-size="${width * 0.0322}" font-weight="900">
+        JEFF MARTIN
+      </text>
+      <text x="${width * 0.779}" y="${height * 0.2235}" fill="#f2b000" font-size="${width * 0.0185}" font-weight="700" letter-spacing="2">
+        AUCTIONEERS
+      </text>
+
+      ${
+        embeddedImageHref
+          ? `<image href="${embeddedImageHref}" x="0" y="${height * 0.2805}" width="${width}" height="${height * 0.564}" preserveAspectRatio="xMidYMid slice" clip-path="url(#spotlightImageClip)"/>`
+          : `<rect x="0" y="${height * 0.2805}" width="${width}" height="${height * 0.564}" fill="#151515"/>
+             <text x="${width / 2}" y="${height * 0.56}" text-anchor="middle" fill="#6d6d6d" font-size="${width * 0.03}" letter-spacing="6">EQUIPMENT IMAGE</text>`
+      }
+
+      <rect x="0" y="${height * 0.8445}" width="${width}" height="${height * 0.1555}" fill="#000000"/>
+      <polygon points="0,${height * 0.8445} ${width * 0.0615},${height * 0.9225} 0,${height}" fill="#f2b000"/>
+      <rect x="0" y="${height * 0.9932}" width="${width}" height="${Math.max(3, height * 0.0068)}" fill="#2c2c2c"/>
+      <text x="${width * 0.1145}" y="${height * 0.927}" fill="#f2b000" font-size="${width * 0.0625}" font-weight="900" letter-spacing="-1.9">
+        AUCTION STARTS:
+      </text>
+      <text x="${width * 0.1145}" y="${height * 0.974}" fill="#ffffff" font-size="${width * 0.0335}" font-weight="800">
+        ${escapeXml(startsLine)}
+      </text>
+    </svg>
+  `;
+}
+
 function createDefaultSvg(
   data: GraphicSubmission,
   embeddedImageHref: string | null,
@@ -236,6 +328,10 @@ export function createMockPreviewSvg(
   channel = "Instagram Post",
 ) {
   const spec = getChannelSpec(channel);
+
+  if (data.type === "Equipment Spotlight") {
+    return createEquipmentSpotlightSvg(data, embeddedImageHref ?? null, spec.width, spec.height);
+  }
 
   if (data.type === "Public Auction") {
     return createPublicAuctionSvg(data, embeddedImageHref ?? null, spec.width, spec.height);

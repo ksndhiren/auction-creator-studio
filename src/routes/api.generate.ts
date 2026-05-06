@@ -28,9 +28,11 @@ export const Route = createFileRoute("/api/generate")({
         const formData = await request.formData();
         const parsed = graphicSubmissionSchema.safeParse({
           type: formData.get("type"),
+          year: formData.get("year"),
           title: formData.get("title"),
           date: formData.get("date"),
           time: formData.get("time"),
+          timezone: formData.get("timezone"),
           location: formData.get("location"),
           category: formData.get("category"),
           cta: formData.get("cta"),

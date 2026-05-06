@@ -5,14 +5,48 @@ export type ChannelPreviewFormat = "square" | "story" | "landscape" | "portrait"
 
 export interface PreviewData {
   type: string;
+  year?: string;
   title: string;
   date: string;
   time: string;
+  timezone?: string;
   location: string;
   cta: string;
   website: string;
   phone: string;
   imageUrl?: string;
+}
+
+function formatAuctionStarts(date: string, time: string, timezone?: string) {
+  if (!date && !time) {
+    return "WEDNESDAY, MAY 13TH @ 10:00 AM CT";
+  }
+
+  const [yearValue, monthValue, dayValue] = date.split("-").map(Number);
+  const parsedDate =
+    yearValue && monthValue && dayValue
+      ? new Date(Date.UTC(yearValue, monthValue - 1, dayValue))
+      : null;
+
+  const weekday = parsedDate
+    ? parsedDate.toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" }).toUpperCase()
+    : "DATE";
+  const month = parsedDate
+    ? parsedDate.toLocaleDateString("en-US", { month: "long", timeZone: "UTC" }).toUpperCase()
+    : "MONTH";
+  const day = parsedDate ? parsedDate.getUTCDate() : 0;
+  const suffix =
+    day % 10 === 1 && day % 100 !== 11
+      ? "ST"
+      : day % 10 === 2 && day % 100 !== 12
+        ? "ND"
+        : day % 10 === 3 && day % 100 !== 13
+          ? "RD"
+          : "TH";
+
+  return `${weekday}, ${month} ${day || "--"}${day ? suffix : ""} @ ${(
+    time || "TIME"
+  ).toUpperCase()} ${timezone || "CT"}`.trim();
 }
 
 function getPreviewAspect(format: ChannelPreviewFormat) {
@@ -42,6 +76,72 @@ export function AuctionPreview({
   data: PreviewData;
   format?: ChannelPreviewFormat;
 }) {
+  if (data.type === "Equipment Spotlight") {
+    return (
+      <div
+        className={`relative w-full overflow-hidden bg-[#0a0a0a] text-charcoal-foreground shadow-industrial ${getPreviewAspect(
+          format,
+        )}`}
+      >
+        <div className="absolute inset-x-0 top-0 h-[27.55%] bg-[#f2b000]" />
+        <div className="absolute right-0 top-0 h-[27.55%] w-[40.1%] bg-black" />
+        <div
+          className="absolute right-[39.9%] top-0 h-[27.55%] w-[11.4%] bg-[#f2b000]"
+          style={{ clipPath: "polygon(0 50%, 100% 0, 100% 100%)" }}
+        />
+        <div className="absolute inset-x-0 top-[27.55%] h-[0.52%] bg-black/95" />
+
+        <div className="absolute left-[4.7%] top-[4.35%] z-10 text-black">
+          <div className="text-[4.08rem] font-black leading-[0.9] tracking-[-0.065em]">
+            {data.year || "2000"}
+          </div>
+          <div className="mt-[1.55%] max-w-[60vw] text-[2rem] font-black uppercase leading-[0.93] tracking-[-0.055em]">
+            {data.title || "LIEBHERR LTM 1300"}
+          </div>
+          <div className="mt-[2.35%] text-[1.08rem] font-extrabold uppercase leading-none tracking-[-0.018em] text-white">
+            {data.category || "ALL TERRAIN CRANE"}
+          </div>
+        </div>
+
+        <div className="absolute right-[4.1%] top-[3.95%] z-10">
+          <BrandMark
+            inverted
+            compact
+            showTagline={false}
+            className="max-w-[10.2rem] scale-[1.26] origin-top-right"
+          />
+        </div>
+
+        <div className="absolute inset-x-0 top-[28.05%] bottom-[15.55%] overflow-hidden">
+          {data.imageUrl ? (
+            <img src={data.imageUrl} alt="equipment" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#151515] text-white/30">
+              <ImageIcon className="h-10 w-10" />
+              <span className="text-xs uppercase tracking-widest">Equipment Image</span>
+            </div>
+          )}
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 h-[15.55%] bg-black" />
+        <div
+          className="absolute bottom-0 left-0 h-[15.55%] w-[6.15%] bg-[#f2b000]"
+          style={{ clipPath: "polygon(0 0, 100% 50%, 0 100%)" }}
+        />
+        <div className="absolute inset-x-0 bottom-[0.2%] h-[0.68%] bg-[#2b2b2b]" />
+
+        <div className="absolute inset-x-[11.65%] bottom-[3.2%] z-10">
+          <div className="text-[2.58rem] font-black uppercase leading-none tracking-[-0.06em] text-[#f2b000]">
+            Auction Starts:
+          </div>
+          <div className="mt-[0.75%] text-[1.14rem] font-extrabold uppercase leading-none tracking-[-0.024em] text-white">
+            {formatAuctionStarts(data.date, data.time, data.timezone)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (data.type === "Public Auction") {
     return (
       <div
