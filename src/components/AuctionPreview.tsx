@@ -1,5 +1,6 @@
 import { ImageIcon } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
+import jmaLogoWhite from "@/assets/jma-logo-white.png";
 
 export type ChannelPreviewFormat = "square" | "story" | "landscape" | "portrait" | "wide";
 
@@ -77,42 +78,84 @@ export function AuctionPreview({
   format?: ChannelPreviewFormat;
 }) {
   if (data.type === "Equipment Spotlight") {
+    const displayFont =
+      '"Inter", "Helvetica Neue", "Helvetica", "Arial Black", "Montserrat", sans-serif';
+
     return (
       <div
-        className={`relative w-full overflow-hidden bg-[#0a0a0a] text-charcoal-foreground shadow-industrial ${getPreviewAspect(
+        className={`relative w-full overflow-hidden bg-black text-charcoal-foreground shadow-industrial ${getPreviewAspect(
           format,
         )}`}
+        style={{ containerType: "inline-size", fontFamily: displayFont }}
       >
-        <div className="absolute inset-x-0 top-0 h-[27.55%] bg-[#f2b000]" />
-        <div className="absolute right-0 top-0 h-[27.55%] w-[40.1%] bg-black" />
+        {/* Header: yellow banner with right-pointing chevron tip */}
         <div
-          className="absolute right-[39.9%] top-0 h-[27.55%] w-[11.4%] bg-[#f2b000]"
-          style={{ clipPath: "polygon(0 50%, 100% 0, 100% 100%)" }}
+          className="absolute inset-x-0 top-0 bg-[#f2b000]"
+          style={{
+            height: "28%",
+            clipPath: "polygon(0 0, 55% 0, 72% 50%, 55% 100%, 0 100%)",
+          }}
         />
-        <div className="absolute inset-x-0 top-[27.55%] h-[0.52%] bg-black/95" />
 
-        <div className="absolute left-[4.7%] top-[4.35%] z-10 text-black">
-          <div className="text-[4.08rem] font-black leading-[0.9] tracking-[-0.065em]">
+        {/* Header: year / make-model / category lockup */}
+        <div
+          className="absolute z-10 text-black"
+          style={{ left: "4.5cqw", top: "3cqw", maxWidth: "52%" }}
+        >
+          <div
+            style={{
+              fontFamily: displayFont,
+              fontSize: "10cqw",
+              fontWeight: 900,
+              lineHeight: 0.85,
+              letterSpacing: "-0.055em",
+            }}
+          >
             {data.year || "2000"}
           </div>
-          <div className="mt-[1.55%] max-w-[60vw] text-[2rem] font-black uppercase leading-[0.93] tracking-[-0.055em]">
+          <div
+            style={{
+              fontFamily: displayFont,
+              fontSize: "4.6cqw",
+              fontWeight: 900,
+              lineHeight: 0.92,
+              letterSpacing: "-0.045em",
+              textTransform: "uppercase",
+              marginTop: "0.4cqw",
+              whiteSpace: "nowrap",
+            }}
+          >
             {data.title || "LIEBHERR LTM 1300"}
           </div>
-          <div className="mt-[2.35%] text-[1.08rem] font-extrabold uppercase leading-none tracking-[-0.018em] text-white">
+          <div
+            style={{
+              fontFamily: displayFont,
+              fontSize: "2.3cqw",
+              fontWeight: 800,
+              lineHeight: 1,
+              letterSpacing: "0.005em",
+              textTransform: "uppercase",
+              color: "white",
+              marginTop: "1.2cqw",
+            }}
+          >
             {data.category || "ALL TERRAIN CRANE"}
           </div>
         </div>
 
-        <div className="absolute right-[4.1%] top-[3.95%] z-10">
-          <BrandMark
-            inverted
-            compact
-            showTagline={false}
-            className="max-w-[10.2rem] scale-[1.26] origin-top-right"
-          />
-        </div>
+        {/* Header: JMA logo in the black field on the right */}
+        <img
+          src={jmaLogoWhite}
+          alt="Jeff Martin Auctioneers"
+          className="absolute z-10 h-auto"
+          style={{ right: "4cqw", top: "4cqw", width: "24cqw" }}
+        />
 
-        <div className="absolute inset-x-0 top-[28.05%] bottom-[15.55%] overflow-hidden">
+        {/* Equipment image */}
+        <div
+          className="absolute inset-x-0 overflow-hidden"
+          style={{ top: "28%", bottom: "15.5%" }}
+        >
           {data.imageUrl ? (
             <img src={data.imageUrl} alt="equipment" className="h-full w-full object-cover" />
           ) : (
@@ -123,18 +166,71 @@ export function AuctionPreview({
           )}
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 h-[15.55%] bg-black" />
-        <div
-          className="absolute bottom-0 left-0 h-[15.55%] w-[6.15%] bg-[#f2b000]"
-          style={{ clipPath: "polygon(0 0, 100% 50%, 0 100%)" }}
-        />
-        <div className="absolute inset-x-0 bottom-[0.2%] h-[0.68%] bg-[#2b2b2b]" />
+        {/* Footer: black bar */}
+        <div className="absolute inset-x-0 bottom-0 bg-black" style={{ height: "15.5%" }} />
 
-        <div className="absolute inset-x-[11.65%] bottom-[3.2%] z-10">
-          <div className="text-[2.58rem] font-black uppercase leading-none tracking-[-0.06em] text-[#f2b000]">
+        {/* Footer: left right-pointing yellow chevron */}
+        <div
+          className="absolute bottom-0 left-0 bg-[#f2b000]"
+          style={{
+            height: "15.5%",
+            width: "8cqw",
+            clipPath: "polygon(0 0, 100% 50%, 0 100%)",
+          }}
+        />
+
+        {/* Footer: right pair of right-pointing yellow chevrons */}
+        <div
+          className="absolute bottom-0 bg-[#f2b000]"
+          style={{
+            height: "15.5%",
+            right: "8cqw",
+            width: "7cqw",
+            clipPath: "polygon(0 0, 100% 50%, 0 100%)",
+          }}
+        />
+        <div
+          className="absolute bottom-0 bg-[#f2b000]"
+          style={{
+            height: "15.5%",
+            right: "1cqw",
+            width: "7cqw",
+            clipPath: "polygon(0 0, 100% 50%, 0 100%)",
+          }}
+        />
+
+        {/* Footer: auction start text */}
+        <div
+          className="absolute z-10"
+          style={{ bottom: "2.5cqw", left: "10.5cqw", right: "17cqw" }}
+        >
+          <div
+            style={{
+              fontFamily: displayFont,
+              fontSize: "6.2cqw",
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "-0.05em",
+              textTransform: "uppercase",
+              color: "#f2b000",
+              whiteSpace: "nowrap",
+            }}
+          >
             Auction Starts:
           </div>
-          <div className="mt-[0.75%] text-[1.14rem] font-extrabold uppercase leading-none tracking-[-0.024em] text-white">
+          <div
+            style={{
+              fontFamily: displayFont,
+              fontSize: "2.6cqw",
+              fontWeight: 800,
+              lineHeight: 1,
+              letterSpacing: "-0.005em",
+              textTransform: "uppercase",
+              color: "white",
+              marginTop: "1cqw",
+              whiteSpace: "nowrap",
+            }}
+          >
             {formatAuctionStarts(data.date, data.time, data.timezone)}
           </div>
         </div>
