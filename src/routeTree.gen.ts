@@ -21,6 +21,7 @@ import { Route as DashboardGenerationsRouteImport } from './routes/dashboard.gen
 import { Route as DashboardCreateRouteImport } from './routes/dashboard.create'
 import { Route as DashboardCalendarRouteImport } from './routes/dashboard.calendar'
 import { Route as DashboardBrandRouteImport } from './routes/dashboard.brand'
+import { Route as ApiGeneratePreviewRouteImport } from './routes/api.generate-preview'
 import { Route as ApiGenerateRouteImport } from './routes/api.generate'
 
 const SignupRoute = SignupRouteImport.update({
@@ -83,6 +84,11 @@ const DashboardBrandRoute = DashboardBrandRouteImport.update({
   path: '/brand',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiGeneratePreviewRoute = ApiGeneratePreviewRouteImport.update({
+  id: '/api/generate-preview',
+  path: '/api/generate-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGenerateRoute = ApiGenerateRouteImport.update({
   id: '/api/generate',
   path: '/api/generate',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
+  '/api/generate-preview': typeof ApiGeneratePreviewRoute
   '/dashboard/brand': typeof DashboardBrandRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/create': typeof DashboardCreateRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
+  '/api/generate-preview': typeof ApiGeneratePreviewRoute
   '/dashboard/brand': typeof DashboardBrandRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/create': typeof DashboardCreateRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
+  '/api/generate-preview': typeof ApiGeneratePreviewRoute
   '/dashboard/brand': typeof DashboardBrandRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/create': typeof DashboardCreateRoute
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/api/generate'
+    | '/api/generate-preview'
     | '/dashboard/brand'
     | '/dashboard/calendar'
     | '/dashboard/create'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/api/generate'
+    | '/api/generate-preview'
     | '/dashboard/brand'
     | '/dashboard/calendar'
     | '/dashboard/create'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/api/generate'
+    | '/api/generate-preview'
     | '/dashboard/brand'
     | '/dashboard/calendar'
     | '/dashboard/create'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   ApiGenerateRoute: typeof ApiGenerateRoute
+  ApiGeneratePreviewRoute: typeof ApiGeneratePreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -275,6 +288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBrandRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/generate-preview': {
+      id: '/api/generate-preview'
+      path: '/api/generate-preview'
+      fullPath: '/api/generate-preview'
+      preLoaderRoute: typeof ApiGeneratePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/generate': {
       id: '/api/generate'
       path: '/api/generate'
@@ -317,6 +337,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   ApiGenerateRoute: ApiGenerateRoute,
+  ApiGeneratePreviewRoute: ApiGeneratePreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

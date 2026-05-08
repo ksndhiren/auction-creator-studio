@@ -1,61 +1,56 @@
-import type { ChannelPreviewFormat } from "@/components/AuctionPreview";
-
 export const channelSpecs = {
-  "Instagram Post": {
-    label: "Instagram Post",
-    width: 1080,
-    height: 1350,
-    ratioLabel: "1080 × 1350 · 4:5",
-    previewFormat: "portrait",
+  Flyer: {
+    label: "Flyer",
+    width: 1024,
+    height: 1536,
+    ratioLabel: "Portrait layout · 1024 × 1536",
   },
-  "Threads Post": {
-    label: "Threads Post",
-    width: 1080,
-    height: 1350,
-    ratioLabel: "1080 × 1350 · 4:5",
-    previewFormat: "portrait",
+  Handout: {
+    label: "Handout",
+    width: 1024,
+    height: 1536,
+    ratioLabel: "Portrait layout · 1024 × 1536",
   },
-  "Facebook Post": {
-    label: "Facebook Post",
-    width: 1080,
-    height: 1350,
-    ratioLabel: "1080 × 1350 · 4:5",
-    previewFormat: "portrait",
+  Banner: {
+    label: "Banner",
+    width: 1536,
+    height: 1024,
+    ratioLabel: "Landscape layout · 1536 × 1024",
   },
-  "LinkedIn Post": {
-    label: "LinkedIn Post",
-    width: 1200,
-    height: 1200,
-    ratioLabel: "1200 × 1200 · 1:1",
-    previewFormat: "square",
+  Catalog: {
+    label: "Catalog",
+    width: 1024,
+    height: 1536,
+    ratioLabel: "Portrait layout · 1024 × 1536",
   },
-  "Twitter Post": {
-    label: "Twitter Post",
-    width: 1200,
-    height: 1200,
-    ratioLabel: "1200 × 1200 · 1:1",
-    previewFormat: "square",
+  "Print Ad": {
+    label: "Print Ad",
+    width: 1024,
+    height: 1024,
+    ratioLabel: "Square layout · 1024 × 1024",
   },
-  "YouTube Community": {
-    label: "YouTube Community",
-    width: 1080,
-    height: 1080,
-    ratioLabel: "1080 × 1080 · 1:1",
-    previewFormat: "square",
+  "Social Media": {
+    label: "Social Media",
+    width: 1024,
+    height: 1536,
+    ratioLabel: "Portrait layout · 1024 × 1536",
   },
-} as const satisfies Record<
-  string,
-  {
-    label: string;
-    width: number;
-    height: number;
-    ratioLabel: string;
-    previewFormat: ChannelPreviewFormat;
-  }
->;
+  Email: {
+    label: "Email",
+    width: 1536,
+    height: 1024,
+    ratioLabel: "Landscape layout · 1536 × 1024",
+  },
+  "Website Ad": {
+    label: "Website Ad",
+    width: 1536,
+    height: 1024,
+    ratioLabel: "Landscape layout · 1536 × 1024",
+  },
+} as const;
 
 export type ChannelName = keyof typeof channelSpecs;
 
 export function getChannelSpec(channel: string) {
-  return channelSpecs[channel as ChannelName] ?? channelSpecs["Instagram Post"];
+  return channelSpecs[channel as ChannelName] ?? channelSpecs["Social Media"];
 }

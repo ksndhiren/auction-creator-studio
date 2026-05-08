@@ -1,54 +1,64 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
-import { Bell, Search, ChevronRight } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { BrandMark } from "@/components/BrandMark";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { AuthGate, useAuth } from "@/lib/auth";
+import { BrandMark } from "@/components/BrandMark";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
 });
 
+const navItems = [
+  { label: "Create", to: "/dashboard/create" },
+  { label: "Saved Designs", to: "/dashboard/generations" },
+];
+
 function DashboardLayout() {
-  const { session } = useAuth();
-  const initials = session?.user.email?.slice(0, 2).toUpperCase() || "AG";
+  const { session, signOut } = useAuth();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   return (
     <AuthGate>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-secondary/60">
-          <AppSidebar />
-          <div className="flex flex-1 flex-col">
-            <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur">
-              <SidebarTrigger />
-              <div className="ml-2 hidden items-center gap-3 lg:flex">
-                <BrandMark compact showTagline={false} className="scale-[0.82] origin-left" />
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                <span className="brand-kicker text-muted-foreground">Marketing Studio</span>
-              </div>
-              <div className="relative hidden max-w-md flex-1 md:block">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search graphics, templates, facilities…"
-                  className="border-0 bg-secondary pl-9 shadow-none"
-                />
-              </div>
-              <div className="ml-auto flex items-center gap-3">
-                <button className="flex h-9 w-9 items-center justify-center border border-border bg-background hover:bg-secondary">
-                  <Bell className="h-4 w-4" />
-                </button>
-                <div className="flex h-9 w-9 items-center justify-center bg-charcoal text-gold font-display text-sm">
-                  {initials}
-                </div>
-              </div>
-            </header>
-            <main className="flex-1 p-6 lg:p-8">
-              <Outlet />
-            </main>
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="border-b border-border bg-white/92 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+            <Link to="/dashboard">
+              <BrandMark showTagline={false} className="origin-left scale-90" />
+            </Link>
+            <nav className="flex items-center gap-2">
+              {navItems.map((item) => {
+                const active = pathname.startsWith(item.to);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] transition ${
+                      active
+                        ? "bg-charcoal text-charcoal-foreground"
+                        : "border border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+            <div className="flex items-center gap-3">
+              <span className="hidden text-sm text-muted-foreground sm:block">
+                {session?.user.email}
+              </span>
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="border border-border px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground transition hover:text-foreground"
+              >
+                Log out
+              </button>
+            </div>
           </div>
-        </div>
-      </SidebarProvider>
+        </header>
+        <main className="mx-auto max-w-6xl px-5 py-10">
+          <Outlet />
+        </main>
+      </div>
     </AuthGate>
   );
 }

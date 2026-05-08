@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Log in — JMA Marketing Studio" }] }),
+  head: () => ({ meta: [{ title: "Log in — Graphics Studio" }] }),
   component: LoginPage,
 });
 
@@ -80,11 +80,11 @@ export function AuthShell({ mode }: { mode: "login" | "signup" }) {
           <div>
             <div className="brand-rule mb-6" />
             <h2 className="text-brand-display text-5xl leading-tight">
-              Built for auction marketing teams that need speed and control.
+              Built for a clear design-request workflow.
             </h2>
             <p className="mt-4 max-w-md text-white/70">
-              Generate sale graphics with the approved logo treatment, the right palette, and
-              consistent facility messaging.
+              Sign in to create a request, generate the final image outputs, and keep the saved
+              versions easy to reuse.
             </p>
           </div>
         </div>
@@ -97,8 +97,8 @@ export function AuthShell({ mode }: { mode: "login" | "signup" }) {
           <h1 className="text-brand-display text-3xl">{isSignup ? "Sign up" : "Log in"}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {isSignup
-              ? "Start producing JMA-ready auction graphics today."
-              : "Pick up where your team left off."}
+              ? "Create an account and start building requests."
+              : "Get back to Create and Saved Designs."}
           </p>
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit}>

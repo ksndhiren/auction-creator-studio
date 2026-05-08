@@ -27,18 +27,25 @@ export const Route = createFileRoute("/api/generate")({
 
         const formData = await request.formData();
         const parsed = graphicSubmissionSchema.safeParse({
+          requestorInfo: formData.get("requestorInfo"),
+          requestDate: formData.get("requestDate"),
+          assetNeed: formData.get("assetNeed"),
+          assetType: formData.get("assetType"),
+          description: formData.get("description"),
+          businessObjective: formData.get("businessObjective"),
           type: formData.get("type"),
-          year: formData.get("year"),
-          title: formData.get("title"),
-          date: formData.get("date"),
-          time: formData.get("time"),
-          timezone: formData.get("timezone"),
-          location: formData.get("location"),
-          category: formData.get("category"),
+          auctionName: formData.get("auctionName"),
+          targetAudience: formData.get("targetAudience"),
           cta: formData.get("cta"),
-          specs: formData.get("specs"),
-          website: formData.get("website"),
-          phone: formData.get("phone"),
+          equipmentCategory: formData.get("equipmentCategory"),
+          equipmentName: formData.get("equipmentName"),
+          featureHighlight: formData.get("featureHighlight"),
+          auctionDate: formData.get("auctionDate"),
+          auctionTime: formData.get("auctionTime"),
+          auctionLocation: formData.get("auctionLocation"),
+          reminderMessage: formData.get("reminderMessage"),
+          promotionHeadline: formData.get("promotionHeadline"),
+          promotionFocus: formData.get("promotionFocus"),
         });
 
         if (!parsed.success) {
@@ -68,7 +75,7 @@ export const Route = createFileRoute("/api/generate")({
           );
 
         if (channelFiles.length === 0) {
-          return Response.json({ error: "Missing channel export files." }, { status: 400 });
+          return Response.json({ error: "Missing output files." }, { status: 400 });
         }
 
         const account = await ensureProfileAndOrganisation(admin, user);
@@ -81,6 +88,7 @@ export const Route = createFileRoute("/api/generate")({
               })
             : null;
         const sourceUploadId = sourceUpload ? crypto.randomUUID() : null;
+
         const previewUploads = await Promise.all(
           channelFiles.map(async ({ file, channel }) => ({
             channel,
@@ -138,6 +146,7 @@ export const Route = createFileRoute("/api/generate")({
           ...parsed.data,
           sourceImageUrl: sourceUpload?.fileUrl ?? null,
           previewImageUrl: primaryPreview.upload.fileUrl,
+          outputGroups: previewUploads.map(({ channel }) => channel),
           channelExports: previewUploads.map(({ channel, upload }) => ({
             channel,
             image: upload.fileUrl,
@@ -148,7 +157,7 @@ export const Route = createFileRoute("/api/generate")({
           id: generationId,
           user_id: user.id,
           organisation_id: account.organisationId,
-          title: parsed.data.title,
+          title: parsed.data.auctionName || parsed.data.assetType,
           type: parsed.data.type,
           status: "completed",
           input_data: payload,
@@ -165,7 +174,7 @@ export const Route = createFileRoute("/api/generate")({
         return Response.json({
           generation: {
             id: generationId,
-            title: parsed.data.title,
+            title: parsed.data.auctionName || parsed.data.assetType,
             type: parsed.data.type,
             status: "completed",
             image: primaryPreview.upload.fileUrl,
