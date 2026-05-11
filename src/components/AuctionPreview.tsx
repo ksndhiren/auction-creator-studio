@@ -93,21 +93,21 @@ export function AuctionPreview({
           className="absolute inset-x-0 top-0 bg-[#f2b000]"
           style={{
             height: "28%",
-            clipPath: "polygon(0 0, 55% 0, 72% 50%, 55% 100%, 0 100%)",
+            clipPath: "polygon(0 0, 54% 0, 68% 50%, 54% 100%, 0 100%)",
           }}
         />
 
         {/* Header: year / make-model / category lockup */}
         <div
           className="absolute z-10 text-black"
-          style={{ left: "4.5cqw", top: "3cqw", maxWidth: "52%" }}
+          style={{ left: "4.5cqw", top: "2cqw", maxWidth: "50%" }}
         >
           <div
             style={{
               fontFamily: displayFont,
               fontSize: "10cqw",
               fontWeight: 900,
-              lineHeight: 0.85,
+              lineHeight: 0.88,
               letterSpacing: "-0.055em",
             }}
           >
@@ -116,12 +116,12 @@ export function AuctionPreview({
           <div
             style={{
               fontFamily: displayFont,
-              fontSize: "4.6cqw",
+              fontSize: "4.4cqw",
               fontWeight: 900,
               lineHeight: 0.92,
               letterSpacing: "-0.045em",
               textTransform: "uppercase",
-              marginTop: "0.4cqw",
+              marginTop: "0.3cqw",
               whiteSpace: "nowrap",
             }}
           >
@@ -130,10 +130,10 @@ export function AuctionPreview({
           <div
             style={{
               fontFamily: displayFont,
-              fontSize: "2.3cqw",
+              fontSize: "1.9cqw",
               fontWeight: 800,
               lineHeight: 1,
-              letterSpacing: "0.005em",
+              letterSpacing: "0.02em",
               textTransform: "uppercase",
               color: "white",
               marginTop: "1.2cqw",
