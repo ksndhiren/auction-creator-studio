@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PreviewTestRouteImport } from './routes/preview-test'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +28,11 @@ import { Route as ApiGenerateRouteImport } from './routes/api.generate'
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewTestRoute = PreviewTestRouteImport.update({
+  id: '/preview-test',
+  path: '/preview-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/preview-test': typeof PreviewTestRoute
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
   '/api/generate-preview': typeof ApiGeneratePreviewRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/preview-test': typeof PreviewTestRoute
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
   '/api/generate-preview': typeof ApiGeneratePreviewRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/preview-test': typeof PreviewTestRoute
   '/signup': typeof SignupRoute
   '/api/generate': typeof ApiGenerateRoute
   '/api/generate-preview': typeof ApiGeneratePreviewRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/preview-test'
     | '/signup'
     | '/api/generate'
     | '/api/generate-preview'
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/preview-test'
     | '/signup'
     | '/api/generate'
     | '/api/generate-preview'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/preview-test'
     | '/signup'
     | '/api/generate'
     | '/api/generate-preview'
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
+  PreviewTestRoute: typeof PreviewTestRoute
   SignupRoute: typeof SignupRoute
   ApiGenerateRoute: typeof ApiGenerateRoute
   ApiGeneratePreviewRoute: typeof ApiGeneratePreviewRoute
@@ -209,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview-test': {
+      id: '/preview-test'
+      path: '/preview-test'
+      fullPath: '/preview-test'
+      preLoaderRoute: typeof PreviewTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -335,6 +355,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
+  PreviewTestRoute: PreviewTestRoute,
   SignupRoute: SignupRoute,
   ApiGenerateRoute: ApiGenerateRoute,
   ApiGeneratePreviewRoute: ApiGeneratePreviewRoute,
